@@ -18,18 +18,18 @@ A clean, resource-based Python SDK for Credly's API v1.
 
 ## Installation
 
+### Using pip
+
+```bash
+pip install credly-api
+```
+
 ### From source
 
 ```bash
 git clone https://github.com/kallewesterling/credly-python-api.git
 cd credly-python-api
 pip install -e .
-```
-
-### Using pip (once published)
-
-```bash
-pip install credly-api
 ```
 
 ## Quick Start
