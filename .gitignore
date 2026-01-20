@@ -56,3 +56,6 @@ docs/_build/
 
 # Distribution
 *.whl
+
+# Any outputs
+issued_badges.csv
