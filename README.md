@@ -21,7 +21,7 @@ A clean, resource-based Python SDK for Credly's API v1.
 ### From source
 
 ```bash
-git clone https://github.com/yourusername/credly-python-api.git
+git clone https://github.com/kallewesterling/credly-python-api.git
 cd credly-python-api
 pip install -e .
 ```
@@ -435,7 +435,7 @@ This SDK covers all major Credly API v1 endpoints:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/credly-python-api.git
+git clone https://github.com/kallewesterling/credly-python-api.git
 cd credly-python-api
 
 # Install dependencies
@@ -529,7 +529,7 @@ Contributions are welcome! Here's how you can help:
 ### Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/credly-python-api.git`
+2. Clone your fork: `git clone https://github.com/kallewesterling/credly-python-api.git`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Set up pre-commit hooks: `pre-commit install`
 5. Create a feature branch: `git checkout -b feature/your-feature-name`
@@ -596,7 +596,7 @@ MIT License - see LICENSE file for details
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/yourusername/credly-python-api/issues
+- GitHub Issues: https://github.com/kallewesterling/credly-python-api/issues
 - Credly API Documentation: https://www.credly.com/docs/api
 
 ## Changelog

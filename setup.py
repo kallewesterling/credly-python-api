@@ -11,7 +11,7 @@ setup(
     description="Python SDK for Credly API v1",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/credly-python-api",
+    url="https://github.com/kallewesterling/credly-python-api",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
