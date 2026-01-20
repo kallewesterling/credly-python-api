@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="credly-api",
+    name="credly-python-api",
     version="0.1.0",
     author="Kalle Westerling",
     author_email="kalle.westerling@gmail.com",

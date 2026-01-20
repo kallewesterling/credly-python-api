@@ -3,7 +3,7 @@ requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "credly-api"
+name = "credly-python-api"
 version = "0.1.0"
 description = "Python SDK for Credly API v1"
 readme = "README.md"
