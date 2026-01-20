@@ -601,7 +601,7 @@ For issues and questions:
 
 ## Changelog
 
-### 0.1.0 (2024-01-20)
+### 0.1.0 (2026-01-20)
 - Initial release
 - Support for all major Credly API v1 endpoints
 - Automatic pagination
