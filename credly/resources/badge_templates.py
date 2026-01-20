@@ -1,8 +1,8 @@
 """Badge Templates resource for Credly API."""
 
-from typing import Any, Dict, Iterator, Optional
+from typing import Iterator, Optional
 
-from .base import BaseResource
+from .base import BaseResource, ResourceData
 
 
 class BadgeTemplates(BaseResource):
@@ -15,7 +15,7 @@ class BadgeTemplates(BaseResource):
         per: Optional[int] = None,
         filter: Optional[str] = None,
         sort: Optional[str] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[ResourceData]:
         """
         List badge templates for an organization.
 
@@ -27,11 +27,11 @@ class BadgeTemplates(BaseResource):
             sort: Sort order
 
         Yields:
-            Badge template data dictionaries
+            Badge template ResourceData objects with dot notation access
 
         Example:
             >>> for template in client.badge_templates.list("org123"):
-            ...     print(template['id'], template['name'])
+            ...     print(template.id, template.name)
         """
         path = f"/v1/organizations/{organization_id}/badge_templates"
         params = {}
@@ -42,7 +42,7 @@ class BadgeTemplates(BaseResource):
 
         return self._paginate(path, params=params, page=page, per=per)
 
-    def get(self, organization_id: str, badge_template_id: str) -> Dict[str, Any]:
+    def get(self, organization_id: str, badge_template_id: str) -> ResourceData:
         """
         Get a specific badge template.
 
@@ -51,19 +51,19 @@ class BadgeTemplates(BaseResource):
             badge_template_id: The badge template ID
 
         Returns:
-            Badge template data dictionary
+            Badge template ResourceData object with dot notation access
 
         Example:
             >>> template = client.badge_templates.get("org123", "template456")
-            >>> print(template['name'])
+            >>> print(template.name)
         """
         path = f"/v1/organizations/{organization_id}/badge_templates/{badge_template_id}"
         response = self.http.get(path)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
     def create(
         self, organization_id: str, name: str, description: str, image: str, **kwargs
-    ) -> Dict[str, Any]:
+    ) -> ResourceData:
         """
         Create a new badge template.
 
@@ -75,7 +75,7 @@ class BadgeTemplates(BaseResource):
             **kwargs: Additional fields (skills, activities, alignment, etc.)
 
         Returns:
-            Created badge template data
+            Created badge template ResourceData object with dot notation access
 
         Example:
             >>> template = client.badge_templates.create(
@@ -89,9 +89,9 @@ class BadgeTemplates(BaseResource):
         path = f"/v1/organizations/{organization_id}/badge_templates"
         data = {"name": name, "description": description, "image": image, **kwargs}
         response = self.http.post(path, data=data)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def update(self, organization_id: str, badge_template_id: str, **kwargs) -> Dict[str, Any]:
+    def update(self, organization_id: str, badge_template_id: str, **kwargs) -> ResourceData:
         """
         Update a badge template.
 
@@ -101,7 +101,7 @@ class BadgeTemplates(BaseResource):
             **kwargs: Fields to update
 
         Returns:
-            Updated badge template data
+            Updated badge template ResourceData object with dot notation access
 
         Example:
             >>> template = client.badge_templates.update(
@@ -112,9 +112,9 @@ class BadgeTemplates(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/badge_templates/{badge_template_id}"
         response = self.http.put(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def delete(self, organization_id: str, badge_template_id: str) -> Dict[str, Any]:
+    def delete(self, organization_id: str, badge_template_id: str) -> ResourceData:
         """
         Delete a badge template.
 
@@ -123,10 +123,10 @@ class BadgeTemplates(BaseResource):
             badge_template_id: The badge template ID
 
         Returns:
-            Deletion response
+            Deletion response as ResourceData object
 
         Example:
             >>> client.badge_templates.delete("org123", "template456")
         """
         path = f"/v1/organizations/{organization_id}/badge_templates/{badge_template_id}"
-        return self.http.delete(path)
+        return self._wrap(self.http.delete(path))

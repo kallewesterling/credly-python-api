@@ -5,6 +5,8 @@ A clean, resource-based Python SDK for Credly's API v1.
 ## Features
 
 - Clean, intuitive interface for all Credly API v1 endpoints
+- **Dot notation access** for resource properties (e.g., `badge.id` instead of `badge['id']`)
+- Backward compatible with bracket notation
 - Automatic pagination support with iterators
 - Comprehensive error handling with custom exceptions
 - Type hints for better IDE support
@@ -40,17 +42,18 @@ from credly import Client
 # Initialize the client with your API key
 client = Client(api_key="your_api_key_here")
 
-# List all organizations
+# List all organizations - use clean dot notation
 for org in client.organizations.list():
-    print(org['name'], org['id'])
+    print(org.name, org.id)
 
 # Get a specific organization
 org = client.organizations.get("org_id")
-print(org['name'])
+print(org.name)  # Dot notation (recommended)
+print(org['name'])  # Bracket notation (also works)
 
 # List badge templates with pagination
 for template in client.badge_templates.list("org_id", per=10):
-    print(template['name'])
+    print(template.name)
 ```
 
 ## Authentication
@@ -96,6 +99,55 @@ load_dotenv()
 client = Client(api_key=os.getenv("CREDLY_API_KEY"))
 ```
 
+## Accessing Resource Properties
+
+All resources returned by the API support both **dot notation** and **bracket notation** for accessing properties.
+
+### Dot Notation (Recommended)
+
+The cleaner, more Pythonic way to access resource properties:
+
+```python
+badge = client.badges.get(org_id, badge_id)
+
+# Access properties with dot notation
+print(badge.id)
+print(badge.recipient_email)
+print(badge.state)
+print(badge.issued_at)
+```
+
+### Bracket Notation (Backward Compatible)
+
+Traditional dictionary-style access still works:
+
+```python
+badge = client.badges.get(org_id, badge_id)
+
+# Access properties with bracket notation
+print(badge['id'])
+print(badge['recipient_email'])
+print(badge['state'])
+```
+
+### Additional Methods
+
+```python
+# Get with default value
+email = badge.get('recipient_email', 'unknown@example.com')
+
+# Check if property exists
+if 'expired_at' in badge:
+    print(f"Expired: {badge.expired_at}")
+
+# Convert to plain dictionary
+badge_dict = badge.to_dict()
+
+# Works with iteration too
+for org in client.organizations.list():
+    print(f"{org.name} - {org.id}")
+```
+
 ## Usage
 
 ### Organizations
@@ -103,10 +155,11 @@ client = Client(api_key=os.getenv("CREDLY_API_KEY"))
 ```python
 # List all organizations
 for org in client.organizations.list():
-    print(org['name'])
+    print(org.name)
 
 # Get a specific organization
 org = client.organizations.get("org_id")
+print(org.name, org.id)
 
 # Update an organization
 org = client.organizations.update(
@@ -126,7 +179,7 @@ for template in client.badge_templates.list(
     sort="name",
     per=20
 ):
-    print(template['name'])
+    print(template.name)
 
 # Get a specific template
 template = client.badge_templates.get("org_id", "template_id")
@@ -156,10 +209,11 @@ client.badge_templates.delete("org_id", "template_id")
 ```python
 # List issued badges
 for badge in client.badges.list("org_id", per=50):
-    print(badge['recipient_email'])
+    print(badge.recipient_email)
 
 # Get a specific badge
 badge = client.badges.get("org_id", "badge_id")
+print(badge.id, badge.state)
 
 # Issue a new badge
 badge = client.badges.issue(
@@ -201,10 +255,11 @@ client.badges.delete("org_id", "badge_id")
 ```python
 # List employees
 for employee in client.employees.list("org_id"):
-    print(employee['email'])
+    print(employee.email)
 
 # Get a specific employee
 employee = client.employees.get("org_id", "employee_id")
+print(employee.first_name, employee.last_name)
 
 # Get employee data
 data = client.employees.get_data("org_id", "employee_id")
@@ -233,11 +288,11 @@ response = client.employees.send_invitations(
 
 # List external badges
 for badge in client.employees.external_badges("org_id"):
-    print(badge['name'])
+    print(badge.name)
 
 # List employee skills
 for skill in client.employees.skills("org_id"):
-    print(skill['name'])
+    print(skill.name)
 
 # Delete an employee
 client.employees.delete("org_id", "employee_id")
@@ -248,7 +303,7 @@ client.employees.delete("org_id", "employee_id")
 ```python
 # List authorization tokens
 for token in client.authorization_tokens.list("org_id"):
-    print(token['name'])
+    print(token.name)
 
 # Create a new token
 token = client.authorization_tokens.create(
@@ -600,6 +655,15 @@ For issues and questions:
 - Credly API Documentation: https://www.credly.com/docs/api
 
 ## Changelog
+
+### 0.2.0 (2026-01-20)
+- **New Feature**: Added dot notation access for resource properties
+  - Access properties using `badge.id` instead of `badge['id']`
+  - Fully backward compatible with bracket notation
+  - Works with all resource types and paginated results
+- Added `ResourceData` wrapper class for enhanced property access
+- Added comprehensive tests for dot notation functionality
+- Updated documentation with dot notation examples
 
 ### 0.1.0 (2026-01-20)
 - Initial release

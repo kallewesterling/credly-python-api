@@ -1,8 +1,8 @@
 """Badges resource for Credly API."""
 
-from typing import Any, Dict, Iterator, Optional
+from typing import Iterator, Optional
 
-from .base import BaseResource
+from .base import BaseResource, ResourceData
 
 
 class Badges(BaseResource):
@@ -13,7 +13,7 @@ class Badges(BaseResource):
         organization_id: str,
         page: Optional[int] = None,
         per: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[ResourceData]:
         """
         List issued badges for an organization.
 
@@ -23,16 +23,16 @@ class Badges(BaseResource):
             per: Number of items per page
 
         Yields:
-            Badge data dictionaries
+            Badge ResourceData objects with dot notation access
 
         Example:
             >>> for badge in client.badges.list("org123"):
-            ...     print(badge['id'], badge['recipient_email'])
+            ...     print(badge.id, badge.recipient_email)
         """
         path = f"/v1/organizations/{organization_id}/badges"
         return self._paginate(path, page=page, per=per)
 
-    def get(self, organization_id: str, badge_id: str) -> Dict[str, Any]:
+    def get(self, organization_id: str, badge_id: str) -> ResourceData:
         """
         Get a specific issued badge.
 
@@ -41,17 +41,17 @@ class Badges(BaseResource):
             badge_id: The badge ID
 
         Returns:
-            Badge data dictionary
+            Badge ResourceData object with dot notation access
 
         Example:
             >>> badge = client.badges.get("org123", "badge789")
-            >>> print(badge['recipient_email'])
+            >>> print(badge.recipient_email)
         """
         path = f"/v1/organizations/{organization_id}/badges/{badge_id}"
         response = self.http.get(path)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def issue(self, organization_id: str, **kwargs) -> Dict[str, Any]:
+    def issue(self, organization_id: str, **kwargs) -> ResourceData:
         """
         Issue a new badge.
 
@@ -60,7 +60,7 @@ class Badges(BaseResource):
             **kwargs: Badge data (badge_template_id, recipient_email, issued_at, etc.)
 
         Returns:
-            Issued badge data
+            Issued badge ResourceData object with dot notation access
 
         Example:
             >>> badge = client.badges.issue(
@@ -72,9 +72,9 @@ class Badges(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/badges"
         response = self.http.post(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def delete(self, organization_id: str, badge_id: str) -> Dict[str, Any]:
+    def delete(self, organization_id: str, badge_id: str) -> ResourceData:
         """
         Delete an issued badge.
 
@@ -83,15 +83,15 @@ class Badges(BaseResource):
             badge_id: The badge ID
 
         Returns:
-            Deletion response
+            Deletion response as ResourceData object
 
         Example:
             >>> client.badges.delete("org123", "badge789")
         """
         path = f"/v1/organizations/{organization_id}/badges/{badge_id}"
-        return self.http.delete(path)
+        return self._wrap(self.http.delete(path))
 
-    def replace(self, organization_id: str, badge_id: str, **kwargs) -> Dict[str, Any]:
+    def replace(self, organization_id: str, badge_id: str, **kwargs) -> ResourceData:
         """
         Replace an issued badge.
 
@@ -101,7 +101,7 @@ class Badges(BaseResource):
             **kwargs: New badge data
 
         Returns:
-            Replacement badge data
+            Replacement badge ResourceData object with dot notation access
 
         Example:
             >>> badge = client.badges.replace(
@@ -113,9 +113,9 @@ class Badges(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/badges/{badge_id}/replace"
         response = self.http.post(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def revoke(self, organization_id: str, badge_id: str, **kwargs) -> Dict[str, Any]:
+    def revoke(self, organization_id: str, badge_id: str, **kwargs) -> ResourceData:
         """
         Revoke an issued badge.
 
@@ -125,7 +125,7 @@ class Badges(BaseResource):
             **kwargs: Revocation data (reason, etc.)
 
         Returns:
-            Revoked badge data
+            Revoked badge ResourceData object with dot notation access
 
         Example:
             >>> badge = client.badges.revoke(
@@ -136,9 +136,9 @@ class Badges(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/badges/{badge_id}/revoke"
         response = self.http.put(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def bulk_search(self, organization_id: str, **kwargs) -> Dict[str, Any]:
+    def bulk_search(self, organization_id: str, **kwargs) -> ResourceData:
         """
         High-volume search for badges.
 
@@ -147,7 +147,7 @@ class Badges(BaseResource):
             **kwargs: Search criteria
 
         Returns:
-            Search results
+            Search results as ResourceData object with dot notation access
 
         Example:
             >>> results = client.badges.bulk_search(
@@ -158,4 +158,4 @@ class Badges(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/badges/bulk_search"
         response = self.http.post(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))

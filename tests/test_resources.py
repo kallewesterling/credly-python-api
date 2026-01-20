@@ -396,3 +396,155 @@ class TestPagination:
         assert len(responses.calls) == 1
         assert "page=1" in responses.calls[0].request.url
         assert "per=10" in responses.calls[0].request.url
+
+
+class TestResourceData:
+    """Test ResourceData dot notation access."""
+
+    @responses.activate
+    def test_dot_notation_access(self, client, org_id):
+        """Test that dot notation works for accessing resource properties."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}",
+            json={"data": {"id": org_id, "name": "Test Org", "description": "A test organization"}},
+            status=200,
+        )
+
+        org = client.organizations.get(org_id)
+
+        # Test dot notation access
+        assert org.id == org_id
+        assert org.name == "Test Org"
+        assert org.description == "A test organization"
+
+    @responses.activate
+    def test_bracket_notation_backward_compatibility(self, client, org_id):
+        """Test that bracket notation still works for backward compatibility."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}",
+            json={"data": {"id": org_id, "name": "Test Org"}},
+            status=200,
+        )
+
+        org = client.organizations.get(org_id)
+
+        # Test bracket notation (backward compatibility)
+        assert org["id"] == org_id
+        assert org["name"] == "Test Org"
+
+    @responses.activate
+    def test_mixed_access_patterns(self, client, org_id, badge_id):
+        """Test that dot and bracket notation can be used interchangeably."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}/badges/{badge_id}",
+            json={
+                "data": {"id": badge_id, "recipient_email": "user@example.com", "state": "accepted"}
+            },
+            status=200,
+        )
+
+        badge = client.badges.get(org_id, badge_id)
+
+        # Use both notations
+        assert badge.id == badge["id"]
+        assert badge.recipient_email == badge["recipient_email"]
+        assert badge["state"] == badge.state
+
+    @responses.activate
+    def test_get_method_with_default(self, client, org_id):
+        """Test that get() method works with default values."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}",
+            json={"data": {"id": org_id, "name": "Test Org"}},
+            status=200,
+        )
+
+        org = client.organizations.get(org_id)
+
+        # Test get() method with existing key
+        assert org.get("name") == "Test Org"
+
+        # Test get() method with non-existing key and default
+        assert org.get("nonexistent", "default_value") == "default_value"
+
+    @responses.activate
+    def test_contains_method(self, client, org_id):
+        """Test that 'in' operator works."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}",
+            json={"data": {"id": org_id, "name": "Test Org"}},
+            status=200,
+        )
+
+        org = client.organizations.get(org_id)
+
+        # Test 'in' operator
+        assert "id" in org
+        assert "name" in org
+        assert "nonexistent" not in org
+
+    @responses.activate
+    def test_to_dict_method(self, client, org_id):
+        """Test converting ResourceData back to dictionary."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}",
+            json={"data": {"id": org_id, "name": "Test Org"}},
+            status=200,
+        )
+
+        org = client.organizations.get(org_id)
+
+        # Convert to dict
+        org_dict = org.to_dict()
+        assert isinstance(org_dict, dict)
+        assert org_dict["id"] == org_id
+        assert org_dict["name"] == "Test Org"
+
+    @responses.activate
+    def test_attribute_error_for_missing_key(self, client, org_id):
+        """Test that AttributeError is raised for missing keys with dot notation."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}",
+            json={"data": {"id": org_id, "name": "Test Org"}},
+            status=200,
+        )
+
+        org = client.organizations.get(org_id)
+
+        # Accessing non-existent attribute should raise AttributeError
+        try:
+            _ = org.nonexistent
+            assert False, "Should have raised AttributeError"
+        except AttributeError as e:
+            assert "nonexistent" in str(e)
+
+    @responses.activate
+    def test_dot_notation_with_iteration(self, client, org_id):
+        """Test dot notation with iterated results."""
+        responses.add(
+            responses.GET,
+            f"https://api.credly.com/v1/organizations/{org_id}/badges",
+            json={
+                "data": [
+                    {"id": "badge1", "recipient_email": "user1@example.com"},
+                    {"id": "badge2", "recipient_email": "user2@example.com"},
+                ],
+                "metadata": {"total_pages": 1},
+            },
+            status=200,
+        )
+
+        badges = list(client.badges.list(org_id))
+
+        # Test dot notation on iterated items
+        assert badges[0].id == "badge1"
+        assert badges[0].recipient_email == "user1@example.com"
+        assert badges[1].id == "badge2"
+        assert badges[1].recipient_email == "user2@example.com"

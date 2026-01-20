@@ -1,8 +1,8 @@
 """Authorization Tokens resource for Credly API."""
 
-from typing import Any, Dict, Iterator, Optional
+from typing import Iterator, Optional
 
-from .base import BaseResource
+from .base import BaseResource, ResourceData
 
 
 class AuthorizationTokens(BaseResource):
@@ -13,7 +13,7 @@ class AuthorizationTokens(BaseResource):
         organization_id: str,
         page: Optional[int] = None,
         per: Optional[int] = None,
-    ) -> Iterator[Dict[str, Any]]:
+    ) -> Iterator[ResourceData]:
         """
         List authorization tokens for an organization.
 
@@ -23,16 +23,16 @@ class AuthorizationTokens(BaseResource):
             per: Number of items per page
 
         Yields:
-            Token data dictionaries
+            Token ResourceData objects with dot notation access
 
         Example:
             >>> for token in client.authorization_tokens.list("org123"):
-            ...     print(token['id'], token['name'])
+            ...     print(token.id, token.name)
         """
         path = f"/v1/organizations/{organization_id}/authorization_tokens"
         return self._paginate(path, page=page, per=per)
 
-    def create(self, organization_id: str, **kwargs) -> Dict[str, Any]:
+    def create(self, organization_id: str, **kwargs) -> ResourceData:
         """
         Create a new authorization token.
 
@@ -41,7 +41,7 @@ class AuthorizationTokens(BaseResource):
             **kwargs: Token data (name, scopes, etc.)
 
         Returns:
-            Created token data
+            Created token ResourceData object with dot notation access
 
         Example:
             >>> token = client.authorization_tokens.create(
@@ -52,9 +52,9 @@ class AuthorizationTokens(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/authorization_tokens"
         response = self.http.post(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
 
-    def rotate(self, organization_id: str, **kwargs) -> Dict[str, Any]:
+    def rotate(self, organization_id: str, **kwargs) -> ResourceData:
         """
         Rotate authorization tokens.
 
@@ -63,7 +63,7 @@ class AuthorizationTokens(BaseResource):
             **kwargs: Rotation parameters
 
         Returns:
-            Rotation response
+            Rotation response as ResourceData object
 
         Example:
             >>> response = client.authorization_tokens.rotate(
@@ -73,4 +73,4 @@ class AuthorizationTokens(BaseResource):
         """
         path = f"/v1/organizations/{organization_id}/authorization_tokens/rotate"
         response = self.http.post(path, data=kwargs)
-        return response.get("data", response)
+        return self._wrap(response.get("data", response))
